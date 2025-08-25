@@ -1,0 +1,23 @@
+- id: check-trailing-whitespace
+  name: Check for trailing whitespace (check only)
+  entry: bash -c "if grep -n '[[:space:]]\+$' \"$@\"; then echo 'Trailing whitespace found!'; exit 1; fi" --
+  language: system
+  types: [text]
+
+- id: check-end-of-file
+  name: Check for end-of-file newline (check only)
+  entry: bash -c "if [ -n \"$(tail -c1 \"$@\")\" ]; then echo 'Missing EOF newline!'; exit 1; fi" --
+  language: system
+  types: [text]
+
+- id: check-mixed-line-ending
+  name: Check for mixed line endings (check only)
+  entry: bash -c "if file \"$@\" | grep -q CRLF; then echo 'Mixed line endings found!'; exit 1; fi" --
+  language: system
+  types: [text]
+
+- id: check-byte-order-marker
+  name: Check for BOM (check only)
+  entry: bash -c "if grep -q $'^\xEF\xBB\xBF' \"$@\"; then echo 'BOM found!'; exit 1; fi" --
+  language: system
+  types: [text]
