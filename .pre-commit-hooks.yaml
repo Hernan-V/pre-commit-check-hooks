@@ -6,7 +6,7 @@
 
 - id: check-end-of-file
   name: Check for end-of-file newline (check only)
-  entry: bash -c "if [ -n \"$(tail -c1 \"$@\")\" ]; then echo 'Missing EOF newline!'; exit 1; fi" --
+  entry: bash -c 'if [ -n "$(tail -c1 "$@")" ]; then echo "Missing EOF newline!"; exit 1; fi' --
   language: system
   types: [text]
 
