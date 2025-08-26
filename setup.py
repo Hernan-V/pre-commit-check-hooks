@@ -20,5 +20,8 @@ setup(
         'Topic :: Software Development :: Quality Assurance',
         'Intended Audience :: Developers',
     ],
+    install_requires=[
+        'case-converter>=1.1.0',
+    ],
     python_requires='>=3.7',
 )

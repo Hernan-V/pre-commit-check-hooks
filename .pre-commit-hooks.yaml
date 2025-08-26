@@ -21,3 +21,10 @@
   entry: bash -c 'if grep -q $"\xEF\xBB\xBF" "$@"; then echo "BOM found!"; exit 1; fi' --
   language: system
   types: [text]
+
+- id: validate-schema
+  name: Validate BigQuery Schema
+  entry: hooks/validate_schema.py
+  language: python
+  types: [json]
+  require_serial: true
