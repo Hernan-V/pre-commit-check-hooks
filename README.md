@@ -97,8 +97,8 @@ Check for trailing whitespace (check only)........................Failed
 - hook id: check-trailing-whitespace
 - exit code: 1
 
-src/example.py:15:    def function():     
-src/example.py:23:        return True    
+src/example.py:15:    def function():
+src/example.py:23:        return True
 Trailing whitespace found!
 
 Check for end-of-file newline (check only)..........................Failed

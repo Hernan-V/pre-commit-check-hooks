@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
-
 """
 Comprehensive naming convention utilities for schema field validation.
 Supports 9 different naming conventions using case-converter library.
 """
+from __future__ import annotations
 
 import re
-from typing import Optional
 
 try:
     from caseconverter import (
         snakecase, camelcase, pascalcase, macrocase, kebabcase,
-        flatcase, cobolcase, titlecase
+        flatcase, cobolcase, titlecase,
     )
     HAS_CASE_CONVERTER = True
 except ImportError:
@@ -28,20 +27,20 @@ NAMING_PATTERNS = {
     'train': re.compile(r'^[A-Z][a-z]*(-[A-Z][a-z0-9]*)*$'),
     'flat': re.compile(r'^[a-z0-9]+$'),
     'cobol': re.compile(r'^[A-Z]+(-[A-Z0-9]+)*$'),
-    'title': re.compile(r'^[A-Z][a-z]*( [A-Z][a-z0-9]*)*$')
+    'title': re.compile(r'^[A-Z][a-z]*( [A-Z][a-z0-9]*)*$'),
 }
 
 # Case style mappings
 CASE_STYLES = {
     'snake': 'snake_case',
-    'camel': 'camelCase', 
+    'camel': 'camelCase',
     'pascal': 'PascalCase',
     'upper': 'UPPER_CASE',
     'kebab': 'kebab-case',
     'train': 'Train-Case',
     'flat': 'flatcase',
     'cobol': 'COBOL-CASE',
-    'title': 'Title Case'
+    'title': 'Title Case',
 }
 
 
@@ -69,7 +68,9 @@ def to_camel_case(text: str) -> str:
     # Fallback implementation
     snake_text = to_snake_case(text)
     components = snake_text.split('_')
-    return components[0].lower() + ''.join(word.capitalize() for word in components[1:])
+    return components[0].lower() + ''.join(
+        word.capitalize() for word in components[1:]
+    )
 
 
 def to_pascal_case(text: str) -> str:
@@ -179,7 +180,7 @@ VALIDATION_FUNCTIONS = {
     'train': is_train_case,
     'flat': is_flat_case,
     'cobol': is_cobol_case,
-    'title': is_title_case
+    'title': is_title_case,
 }
 
 CONVERSION_FUNCTIONS = {
@@ -191,47 +192,53 @@ CONVERSION_FUNCTIONS = {
     'train': to_train_case,
     'flat': to_flat_case,
     'cobol': to_cobol_case,
-    'title': to_title_case
+    'title': to_title_case,
 }
 
 
-def validate_naming_convention(name: str, case_style: str) -> Optional[str]:
+def validate_naming_convention(name: str, case_style: str) -> str | None:
     """
     Validate if a field name follows the specified naming convention.
-    
+
     Args:
         name: The field name to validate
         case_style: The naming convention to check against
-        
+
     Returns:
         Error message if validation fails, None if validation passes
     """
     if case_style not in VALIDATION_FUNCTIONS:
-        return f"Unsupported case style '{case_style}'. Supported: {', '.join(VALIDATION_FUNCTIONS.keys())}"
-    
+        return (
+            f"Unsupported case style '{case_style}'. "
+            f"Supported: {', '.join(VALIDATION_FUNCTIONS.keys())}"
+        )
+
     validation_func = VALIDATION_FUNCTIONS[case_style]
     if not validation_func(name):
         expected = convert_naming_convention(name, case_style)
         case_name = CASE_STYLES[case_style]
-        return f"Field name '{name}' does not follow {case_name}. Expected: {expected}"
-    
+        return (
+            f"Field name '{name}' does not follow {case_name}. "
+            f"Expected: {expected}"
+        )
+
     return None
 
 
 def convert_naming_convention(name: str, case_style: str) -> str:
     """
     Convert a field name to the specified naming convention.
-    
+
     Args:
         name: The field name to convert
         case_style: The target naming convention
-        
+
     Returns:
         The converted field name
     """
     if case_style not in CONVERSION_FUNCTIONS:
         return name
-    
+
     conversion_func = CONVERSION_FUNCTIONS[case_style]
     return conversion_func(name)
 
@@ -244,10 +251,10 @@ def get_supported_case_styles() -> list:
 def get_case_style_examples() -> dict:
     """Get examples for each supported case style."""
     examples = {}
-    sample_text = "customer_id"
-    
+    sample_text = 'customer_id'
+
     for style in CASE_STYLES.keys():
         converted = convert_naming_convention(sample_text, style)
         examples[style] = f"{CASE_STYLES[style]}: {converted}"
-    
+
     return examples
