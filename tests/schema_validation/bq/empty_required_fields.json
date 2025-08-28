@@ -1,0 +1,14 @@
+[
+  {
+    "name": "",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Empty name field"
+  },
+  {
+    "name": "valid_field",
+    "type": "",
+    "mode": "REQUIRED",
+    "description": ""
+  }
+]

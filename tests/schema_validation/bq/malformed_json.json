@@ -1,0 +1,14 @@
+[
+  {
+    "name": "customer_id",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Unique identifier for the customer"
+  },
+  {
+    "name": "invalid_field",
+    "type": "STRING"
+    "mode": "REQUIRED",
+    "description": "Missing comma above"
+  }
+]

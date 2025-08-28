@@ -21,3 +21,12 @@
   entry: bash -c 'if grep -q $"\xEF\xBB\xBF" "$@"; then echo "BOM found!"; exit 1; fi' --
   language: system
   types: [text]
+
+- id: validate-schema
+  name: Validate Database Schema (Multi-Dialect)
+  description: Validates database schema files for compliance with RDBMS dialects and naming conventions
+  entry: hooks/validate_schema.py
+  language: python
+  types: [json]
+  require_serial: true
+  additional_dependencies: [case-converter]

@@ -37,6 +37,18 @@ Identifies files containing Byte Order Markers (BOM).
 - **Action**: Reports files with BOM characters
 - **Fix**: Remove BOM from the beginning of reported files
 
+### `validate-schema`
+Validates database schema files for compliance with RDBMS dialects (BigQuery, etc.).
+- **Purpose**: Ensures schema files meet dialect requirements and naming conventions
+- **Action**: Validates JSON schema files against BigQuery standards
+- **Features**:
+  - Multi-dialect support (BigQuery with extensibility for PostgreSQL, Hive, SQL Server)
+  - 9 naming conventions (snake_case, camelCase, PascalCase, UPPER_CASE, kebab-case, Train-Case, flatcase, COBOL-CASE, Title Case)
+  - Lint mode (check only) and fix mode (auto-correct naming)
+  - File discovery with regex patterns
+  - Nested RECORD type validation
+- **Fix**: Manually correct reported schema violations or use `--mode=fix` for naming corrections
+
 ## Installation
 
 ### Option 1: Use in your .pre-commit-config.yaml
@@ -52,6 +64,13 @@ repos:
       - id: check-end-of-file
       - id: check-mixed-line-ending
       - id: check-byte-order-marker
+      - id: validate-schema
+        args:
+          - --file-type=json
+          - --path-regex=(schema|bq)/.*
+          - --dialect=bigquery
+          - --case=snake
+          - --mode=lint
 ```
 
 ### Option 2: Selective Usage
@@ -65,6 +84,10 @@ repos:
     hooks:
       - id: check-trailing-whitespace
       - id: check-end-of-file
+      # Schema validation for BigQuery projects
+      - id: validate-schema
+        files: '\.json$'
+        args: ['--dialect', 'bigquery', '--case', 'snake']
 ```
 
 ## Usage
@@ -84,6 +107,12 @@ repos:
 4. Run the hooks manually (optional):
    ```bash
    pre-commit run --all-files
+   
+   # Run specific hook
+   pre-commit run validate-schema --all-files
+   
+   # Test schema validation directly
+   python hooks/validate_schema.py --dialect bigquery --case snake schema/*.json
    ```
 
 5. The hooks will now run automatically on every commit
@@ -97,15 +126,17 @@ Check for trailing whitespace (check only)........................Failed
 - hook id: check-trailing-whitespace
 - exit code: 1
 
-src/example.py:15:    def function():     
-src/example.py:23:        return True    
+src/example.py:15:    def function():
+src/example.py:23:        return True
 Trailing whitespace found!
 
-Check for end-of-file newline (check only)..........................Failed
-- hook id: check-end-of-file
+Validate Database Schema (BigQuery)................................Failed
+- hook id: validate-schema
 - exit code: 1
 
-Missing EOF newline!
+schema/customer_table.json: Field customer_table.json.CustomerID: Field name 'CustomerID' does not follow snake_case. Expected: customer_id
+schema/orders.json: Field orders.json.emailAddress: Field name 'emailAddress' does not follow snake_case. Expected: email_address
+schema/orders.json: Field orders.json.orderDate: Missing required attribute 'mode'
 ```
 
 ## Philosophy
@@ -117,10 +148,49 @@ These hooks follow a "check-only" philosophy:
 - **Transparent**: Clear reporting of issues with line numbers
 - **Consistent**: Same behavior across all environments
 
+## Schema Validation Details
+
+### Supported Dialects
+- **BigQuery** (current): Validates against BigQuery table schema standards
+- **PostgreSQL** (planned): Coming in future versions
+- **Hive** (planned): Coming in future versions
+- **SQL Server** (planned): Coming in future versions
+
+### Naming Conventions
+Choose from 9 different naming styles using the `--case` argument:
+- `snake` (default): `customer_id`
+- `camel`: `customerId`
+- `pascal`: `CustomerId`
+- `upper`: `CUSTOMER_ID`
+- `kebab`: `customer-id`
+- `train`: `Customer-Id`
+- `flat`: `customerid`
+- `cobol`: `CUSTOMER-ID`
+- `title`: `Customer Id`
+
+### CLI Usage
+```bash
+# Basic validation
+python hooks/validate_schema.py schema/*.json
+
+# With specific options
+python hooks/validate_schema.py \
+  --dialect bigquery \
+  --case snake \
+  --mode lint \
+  --file-type json \
+  --path-regex "schema/.*" \
+  schema/*.json
+
+# Auto-fix naming conventions
+python hooks/validate_schema.py --mode fix --case snake schema/*.json
+```
+
 ## Requirements
 
 - **System**: Unix-like systems (Linux, macOS)
-- **Dependencies**: Standard Unix tools (`grep`, `tail`, `file`)
+- **Dependencies**: Standard Unix tools (`grep`, `tail`, `file`) + Python 3.7+
+- **Python Packages**: `case-converter` (for schema validation)
 - **Pre-commit**: Version 0.15.0 or higher
 
 ## Contributing

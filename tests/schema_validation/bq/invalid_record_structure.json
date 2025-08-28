@@ -1,0 +1,23 @@
+[
+  {
+    "name": "address_info",
+    "type": "RECORD",
+    "mode": "NULLABLE",
+    "description": "Customer address information",
+    "fields": "this should be an array"
+  },
+  {
+    "name": "contact_info", 
+    "type": "RECORD",
+    "mode": "REQUIRED",
+    "description": "Contact information",
+    "fields": [
+      {
+        "name": "phoneNumber",
+        "type": "STRING",
+        "mode": "INVALID_MODE",
+        "description": "Phone number with wrong naming and invalid mode"
+      }
+    ]
+  }
+]

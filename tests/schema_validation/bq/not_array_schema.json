@@ -1,0 +1,6 @@
+{
+  "name": "customer_id",
+  "type": "STRING", 
+  "mode": "REQUIRED",
+  "description": "This should be wrapped in an array"
+}
