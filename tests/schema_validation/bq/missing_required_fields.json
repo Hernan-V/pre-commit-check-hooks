@@ -1,0 +1,17 @@
+[
+  {
+    "name": "customer_id",
+    "type": "STRING",
+    "description": "Unique identifier for the customer"
+  },
+  {
+    "name": "email_address",
+    "mode": "NULLABLE",
+    "description": "Customer email address"
+  },
+  {
+    "type": "INTEGER",
+    "mode": "REQUIRED",
+    "description": "Customer age"
+  }
+]

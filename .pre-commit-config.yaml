@@ -1,22 +1,17 @@
 repos:
-  - repo: https://github.com/Hernan-V/pre-commit-check-hooks
-    rev: v1.0.0
-    hooks:
-      - id: check-trailing-whitespace
-      - id: check-end-of-file
-      - id: check-mixed-line-ending
-      - id: check-byte-order-marker
-
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
-    -   id: trailing-whitespace
-    -   id: end-of-file-fixer
-    -   id: check-yaml
-    -   id: debug-statements
-    -   id: double-quote-string-fixer
-    -   id: name-tests-test
-    -   id: requirements-txt-fixer
+      - id: check-ast
+      - id: fix-byte-order-marker
+      - id: mixed-line-ending
+        args: ['--fix=lf']
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-merge-conflict
+      - id: debug-statements
 
   - repo: https://github.com/asottile/setup-cfg-fmt
     rev: v2.8.0

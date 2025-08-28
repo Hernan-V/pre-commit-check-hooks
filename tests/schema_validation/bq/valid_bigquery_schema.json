@@ -1,0 +1,58 @@
+[
+  {
+    "name": "customer_id",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Unique identifier for the customer"
+  },
+  {
+    "name": "email_address",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Customer email address"
+  },
+  {
+    "name": "registration_timestamp",
+    "type": "TIMESTAMP",
+    "mode": "REQUIRED",
+    "description": "When the customer registered"
+  },
+  {
+    "name": "total_orders",
+    "type": "INTEGER",
+    "mode": "NULLABLE",
+    "description": "Total number of orders placed"
+  },
+  {
+    "name": "is_premium",
+    "type": "BOOLEAN",
+    "mode": "REQUIRED",
+    "description": "Whether the customer has premium status"
+  },
+  {
+    "name": "address_info",
+    "type": "RECORD",
+    "mode": "NULLABLE",
+    "description": "Customer address information",
+    "fields": [
+      {
+        "name": "street_address",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Street address"
+      },
+      {
+        "name": "city_name",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "City name"
+      },
+      {
+        "name": "postal_code",
+        "type": "STRING",
+        "mode": "NULLABLE",
+        "description": "Postal or ZIP code"
+      }
+    ]
+  }
+]

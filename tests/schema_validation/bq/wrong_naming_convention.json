@@ -1,0 +1,20 @@
+[
+  {
+    "name": "CustomerID",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Unique identifier for the customer"
+  },
+  {
+    "name": "emailAddress",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Customer email address"
+  },
+  {
+    "name": "TOTAL-ORDERS",
+    "type": "INTEGER",
+    "mode": "NULLABLE", 
+    "description": "Total number of orders"
+  }
+]

@@ -46,7 +46,7 @@ def apply_naming_fix(name: str, case_style: str) -> str:
 
 
 def apply_field_fixes(
-        field: dict[str, Any], case_style: str
+        field: dict[str, Any], case_style: str,
 ) -> dict[str, Any]:
     """Apply naming fixes to a field and its nested fields recursively."""
     if 'name' in field:
@@ -56,8 +56,10 @@ def apply_field_fixes(
             field['name'] = fixed_name
 
     # Handle nested fields for RECORD types
-    if (field.get('type') == 'RECORD' and 'fields' in field and
-            isinstance(field['fields'], list)):
+    if (
+        field.get('type') == 'RECORD' and 'fields' in field and
+        isinstance(field['fields'], list)
+    ):
         field = field.copy()  # Don't modify original
         field['fields'] = [
             apply_field_fixes(nested_field, case_style)
@@ -75,8 +77,10 @@ def validate_field(
         dialect_config: dict[str, Any],
         case_style: str,
         path: str = '',
-) -> list[str]:
+        mode: str = 'lint',
+) -> tuple[list[str], list[str]]:
     errors = []
+    fixable_errors = []  # Errors that can be auto-fixed (naming only)
     field_path = (
         f"{path}.{field.get('name', 'UNNAMED')}"
         if path else field.get('name', 'UNNAMED')
@@ -87,39 +91,48 @@ def validate_field(
     for attr in required_attrs:
         if attr not in field:
             errors.append(
-                f"Field {field_path}: Missing required attribute '{attr}'")
+                f"Field {field_path}: Missing required attribute '{attr}'",
+            )
         elif not field[attr]:
             errors.append(
-                f"Field {field_path}: Attribute '{attr}' cannot be empty")
+                f"Field {field_path}: Attribute '{attr}' cannot be empty",
+            )
 
     if 'name' in field:
         naming_error = validate_naming_convention(field['name'], case_style)
         if naming_error:
-            errors.append(f"Field {field_path}: {naming_error}")
+            if mode == 'fix':
+                fixable_errors.append(f"Field {field_path}: {naming_error}")
+            else:
+                errors.append(f"Field {field_path}: {naming_error}")
 
     # Use dialect-specific type and mode validation
     if 'type' in field and field['type'] not in dialect_config['types']:
         errors.append(
             f"Field {field_path}: Invalid type '{field['type']}'. "
-            f"Valid types: {', '.join(sorted(dialect_config['types']))}"
+            f"Valid types: {', '.join(sorted(dialect_config['types']))}",
         )
 
     if 'mode' in field and field['mode'] not in dialect_config['modes']:
         errors.append(
             f"Field {field_path}: Invalid mode '{field['mode']}'. "
-            f"Valid modes: {', '.join(sorted(dialect_config['modes']))}"
+            f"Valid modes: {', '.join(sorted(dialect_config['modes']))}",
         )
 
     if field.get('type') == 'RECORD' and 'fields' in field:
         if not isinstance(field['fields'], list):
             errors.append(
-                f"Field {field_path}: 'fields' must be a list for RECORD type")
+                f"Field {field_path}: 'fields' must be a list for RECORD type",
+            )
         else:
             for nested_field in field['fields']:
-                errors.extend(validate_field(
-                    nested_field, dialect_config, case_style, field_path))
+                nested_errors, nested_fixable = validate_field(
+                    nested_field, dialect_config, case_style, field_path, mode,
+                )
+                errors.extend(nested_errors)
+                fixable_errors.extend(nested_fixable)
 
-    return errors
+    return (errors, fixable_errors)
 
 
 def validate_schema(
@@ -127,33 +140,35 @@ def validate_schema(
         dialect: str,
         case_style: str,
         mode: str = 'lint',
-) -> tuple[list[str], dict[str, Any] | None]:
+) -> tuple[list[str], list[str], dict[str, Any] | None]:
     if dialect not in DIALECT_CONFIG:
         return (
             [
                 f"Unsupported dialect '{dialect}'. "
-                f"Available dialects: {', '.join(DIALECT_CONFIG.keys())}"
+                f"Available dialects: {', '.join(DIALECT_CONFIG.keys())}",
             ],
+            [],
             None,
         )
 
     dialect_config = DIALECT_CONFIG[dialect]
     errors = []
+    fixable_errors = []
     fixed_data = None
 
     try:
         with open(file_path, encoding='utf-8') as f:
             data = json.load(f)
     except json.JSONDecodeError as e:
-        return ([f"Invalid JSON in {file_path}: {e}"], None)
+        return ([f"Invalid JSON in {file_path}: {e}"], [], None)
     except Exception as e:
-        return ([f"Error reading {file_path}: {e}"], None)
+        return ([f"Error reading {file_path}: {e}"], [], None)
 
     if not isinstance(data, list):
-        return ([f"{file_path}: Schema must be a list of field objects"], None)
+        return ([f"{file_path}: Schema must be a list of field objects"], [], None)
 
     if not data:
-        return ([f"{file_path}: Schema cannot be empty"], None)
+        return ([f"{file_path}: Schema cannot be empty"], [], None)
 
     # For fix mode, create a copy of data to modify
     if mode == 'fix':
@@ -164,18 +179,21 @@ def validate_schema(
             errors.append(f"{file_path}: Field {i} must be an object")
             continue
 
-        field_errors = validate_field(field, dialect_config, case_style)
+        field_errors, field_fixable = validate_field(field, dialect_config, case_style, '', mode)
         errors.extend(
-            [f"{file_path}: {error}" for error in field_errors]
+            [f"{file_path}: {error}" for error in field_errors],
+        )
+        fixable_errors.extend(
+            [f"{file_path}: {error}" for error in field_fixable],
         )
 
         # Apply fixes if in fix mode
         if mode == 'fix' and fixed_data and 'name' in field:
             fixed_data[i] = apply_field_fixes(
-                fixed_data[i], case_style
+                fixed_data[i], case_style,
             )
 
-    return (errors, fixed_data)
+    return (errors, fixable_errors, fixed_data)
 
 
 def discover_files(file_type: str, path_regex: str | None) -> list[str]:
@@ -263,17 +281,28 @@ def main():
             all_errors.append(f"File not found: {file_path}")
             continue
 
-        validation_errors, fixed_data = validate_schema(
-            file_path, args.dialect, args.case, args.mode)
-        all_errors.extend(validation_errors)
+        validation_errors, fixable_errors, fixed_data = validate_schema(
+            file_path, args.dialect, args.case, args.mode,
+        )
+        if args.mode == 'fix':
+            # In fix mode, only show non-fixable errors
+            all_errors.extend(validation_errors)
+            # Show what was fixed
+            if fixable_errors and fixed_data is not None:
+                print(f"✓ Fixed {len(fixable_errors)} naming issue(s) in {file_path}")
+                for error in fixable_errors:
+                    print(f"  - {error.replace(file_path + ': ', '')}")
+        else:
+            # In lint mode, show all errors
+            all_errors.extend(validation_errors)
+            all_errors.extend(fixable_errors)
 
         # Apply fixes if in fix mode and fixes are available
-        if (args.mode == 'fix' and fixed_data is not None and
-                not validation_errors):
+        if args.mode == 'fix' and fixed_data is not None:
             try:
                 with open(file_path, 'w', encoding='utf-8') as f:
                     json.dump(
-                        fixed_data, f, indent=2, ensure_ascii=False
+                        fixed_data, f, indent=2, ensure_ascii=False,
                     )
                 print(f"✓ Applied fixes to {file_path}")
             except Exception as e:
@@ -286,11 +315,11 @@ def main():
     if args.mode == 'fix':
         print(
             f"✓ All {len(candidate_files)} schema file(s) processed "
-            f"successfully."
+            f"successfully.",
         )
     else:
         print(
-            f"✓ All {len(candidate_files)} schema file(s) passed validation."
+            f"✓ All {len(candidate_files)} schema file(s) passed validation.",
         )
     return 0
 
