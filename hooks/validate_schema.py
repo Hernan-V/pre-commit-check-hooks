@@ -7,9 +7,9 @@ import os
 import sys
 from typing import Any
 
-from naming_utils import convert_naming_convention
-from naming_utils import get_supported_case_styles
-from naming_utils import validate_naming_convention
+from .naming_utils import convert_naming_convention
+from .naming_utils import get_supported_case_styles
+from .naming_utils import validate_naming_convention
 
 
 # Dialect Configuration System
