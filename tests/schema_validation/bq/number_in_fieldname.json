@@ -1,0 +1,38 @@
+[
+  {
+    "name": "transaccion1",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "transaccion1"
+  },
+  {
+    "name": "descripcion1",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "descripcion1"
+  },
+  {
+    "name": "transaccion2",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "transaccion2"
+  },
+  {
+    "name": "descripcion2",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "descripcion2"
+  },
+  {
+    "name": "riesgo_identificado",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "riesgo_identificado"
+  },
+  {
+    "name": "justificacion",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "justificacion"
+  }
+]
