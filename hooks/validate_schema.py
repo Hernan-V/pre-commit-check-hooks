@@ -7,10 +7,10 @@ import os
 import sys
 from typing import Any
 
-from dialect_config import DIALECT_CONFIG
-from naming_utils import convert_naming_convention
-from naming_utils import get_supported_case_styles
-from naming_utils import validate_naming_convention
+from hooks.dialect_config import DIALECT_CONFIG
+from hooks.naming_utils import convert_naming_convention
+from hooks.naming_utils import get_supported_case_styles
+from hooks.naming_utils import validate_naming_convention
 
 
 # Dialect configurations are now imported from dialect_config.py
