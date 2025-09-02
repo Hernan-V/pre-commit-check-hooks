@@ -280,6 +280,7 @@ def main():
                     json.dump(
                         fixed_data, f, indent=2, ensure_ascii=False,
                     )
+                    f.write('\n')
                 print(f"✓ Applied fixes to {file_path}")
             except Exception as e:
                 all_errors.append(f"Error writing fixes to {file_path}: {e}")
