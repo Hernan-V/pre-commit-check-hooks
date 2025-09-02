@@ -1,0 +1,14 @@
+[
+  {
+    "name": "data_field",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Main data field"
+  },
+  {
+    "name": "other_field",
+    "type": "STRING",
+    "mode": "NULLABLE",
+    "description": "Another field"
+  }
+]

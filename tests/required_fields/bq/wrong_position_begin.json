@@ -1,0 +1,20 @@
+[
+  {
+    "name": "data_field",
+    "type": "STRING",
+    "mode": "REQUIRED",
+    "description": "Main data field"
+  },
+  {
+    "name": "insert_date",
+    "type": "TIMESTAMP",
+    "mode": "REQUIRED",
+    "description": "Record insertion timestamp"
+  },
+  {
+    "name": "update_date",
+    "type": "TIMESTAMP",
+    "mode": "NULLABLE",
+    "description": "Last update timestamp"
+  }
+]
