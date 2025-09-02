@@ -7,37 +7,13 @@ import os
 import sys
 from typing import Any
 
-from .naming_utils import convert_naming_convention
-from .naming_utils import get_supported_case_styles
-from .naming_utils import validate_naming_convention
+from dialect_config import DIALECT_CONFIG
+from naming_utils import convert_naming_convention
+from naming_utils import get_supported_case_styles
+from naming_utils import validate_naming_convention
 
 
-# Dialect Configuration System
-BIGQUERY_TYPES = {
-    'STRING', 'BYTES', 'INTEGER', 'INT64', 'FLOAT', 'FLOAT64', 'NUMERIC',
-    'BIGNUMERIC', 'BOOLEAN', 'BOOL', 'TIMESTAMP', 'DATE', 'TIME',
-    'DATETIME', 'GEOGRAPHY', 'RECORD', 'STRUCT',
-}
-
-BIGQUERY_MODES = {'NULLABLE', 'REQUIRED', 'REPEATED'}
-
-BIGQUERY_REQUIRED_ATTRS = {'name', 'type', 'mode', 'description'}
-
-BIGQUERY_OPTIONAL_ATTRS = {'fields'}
-
-# Dialect registry for extensibility
-DIALECT_CONFIG = {
-    'bigquery': {
-        'types': BIGQUERY_TYPES,
-        'modes': BIGQUERY_MODES,
-        'required_attrs': BIGQUERY_REQUIRED_ATTRS,
-        'optional_attrs': BIGQUERY_OPTIONAL_ATTRS,
-    },
-    # Future dialects can be added here:
-    # 'postgresql': {...},
-    # 'hive': {...},
-    # 'sqlserver': {...}
-}
+# Dialect configurations are now imported from dialect_config.py
 
 
 def apply_naming_fix(name: str, case_style: str) -> str:

@@ -19,7 +19,7 @@ except ImportError:
 
 # Fallback regex patterns if case-converter is not available
 NAMING_PATTERNS = {
-    'snake': re.compile(r'^[a-z]+(_[a-z0-9]+)*$'),
+    'snake': re.compile(r'^[a-z][a-z0-9]*(_[a-z0-9]+)*$'),
     'camel': re.compile(r'^[a-z][a-zA-Z0-9]*$'),
     'pascal': re.compile(r'^[A-Z][a-zA-Z0-9]*$'),
     'upper': re.compile(r'^[A-Z]+(_[A-Z0-9]+)*$'),
@@ -127,46 +127,64 @@ def to_title_case(text: str) -> str:
 # Validation functions
 def is_snake_case(text: str) -> bool:
     """Check if text follows snake_case convention."""
+    if HAS_CASE_CONVERTER:
+        return to_snake_case(text) == text
     return bool(NAMING_PATTERNS['snake'].match(text))
 
 
 def is_camel_case(text: str) -> bool:
     """Check if text follows camelCase convention."""
+    if HAS_CASE_CONVERTER:
+        return to_camel_case(text) == text
     return bool(NAMING_PATTERNS['camel'].match(text))
 
 
 def is_pascal_case(text: str) -> bool:
     """Check if text follows PascalCase convention."""
+    if HAS_CASE_CONVERTER:
+        return to_pascal_case(text) == text
     return bool(NAMING_PATTERNS['pascal'].match(text))
 
 
 def is_upper_case(text: str) -> bool:
     """Check if text follows UPPER_CASE convention."""
+    if HAS_CASE_CONVERTER:
+        return to_upper_case(text) == text
     return bool(NAMING_PATTERNS['upper'].match(text))
 
 
 def is_kebab_case(text: str) -> bool:
     """Check if text follows kebab-case convention."""
+    if HAS_CASE_CONVERTER:
+        return to_kebab_case(text) == text
     return bool(NAMING_PATTERNS['kebab'].match(text))
 
 
 def is_train_case(text: str) -> bool:
     """Check if text follows Train-Case convention."""
+    if HAS_CASE_CONVERTER:
+        return to_train_case(text) == text
     return bool(NAMING_PATTERNS['train'].match(text))
 
 
 def is_flat_case(text: str) -> bool:
     """Check if text follows flatcase convention."""
+    if HAS_CASE_CONVERTER:
+        return to_flat_case(text) == text
     return bool(NAMING_PATTERNS['flat'].match(text))
 
 
 def is_cobol_case(text: str) -> bool:
     """Check if text follows COBOL-CASE convention."""
+    if HAS_CASE_CONVERTER:
+        return to_cobol_case(text) == text
     return bool(NAMING_PATTERNS['cobol'].match(text))
 
 
 def is_title_case(text: str) -> bool:
     """Check if text follows Title Case convention."""
+    if HAS_CASE_CONVERTER:
+        return to_title_case(text) == text
     return bool(NAMING_PATTERNS['title'].match(text))
 
 
