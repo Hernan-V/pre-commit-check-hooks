@@ -48,6 +48,55 @@ def apply_field_fixes(
 # Naming validation is now handled by naming_utils module
 
 
+def validate_custom_field_names(
+    schema_fields: list[dict[str, Any]],
+    required_fields: str | None,
+    position: str,
+    file_path: str,
+) -> list[str]:
+    """Validate that required field names exist in correct order and position in schema."""
+    if not required_fields:
+        return []
+    
+    req_field_names = [f.strip() for f in required_fields.split(',') if f.strip()]
+    if not req_field_names:
+        return []
+    
+    errors = []
+    
+    # Extract field names from schema
+    schema_field_names = []
+    for field in schema_fields:
+        if isinstance(field, dict) and 'name' in field:
+            schema_field_names.append(field['name'])
+    
+    # Check missing fields
+    missing = [f for f in req_field_names if f not in schema_field_names]
+    if missing:
+        errors.append(f"[ERROR] {file_path}: Missing required field names: {', '.join(missing)}")
+        return errors
+    
+    # Check order and position
+    indices = [schema_field_names.index(f) for f in req_field_names]
+    
+    # Check order
+    if indices != sorted(indices):
+        errors.append(f"[ERROR] {file_path}: Required field names out of order. Expected: [{', '.join(req_field_names)}]")
+    
+    # Check position
+    elif position == 'beginning' and indices != list(range(len(req_field_names))):
+        found = ', '.join(schema_field_names[:len(req_field_names)])
+        errors.append(f"[ERROR] {file_path}: Required field names must be at beginning. Found: [{found}]")
+    
+    elif position == 'end':
+        expected = list(range(len(schema_field_names) - len(req_field_names), len(schema_field_names)))
+        if indices != expected:
+            found = ', '.join(schema_field_names[-len(req_field_names):])
+            errors.append(f"[ERROR] {file_path}: Required field names must be at end. Found: [{found}]")
+    
+    return errors
+
+
 def validate_field(
         field: dict[str, Any],
         dialect_config: dict[str, Any],
@@ -116,6 +165,8 @@ def validate_schema(
         dialect: str,
         case_style: str,
         mode: str = 'lint',
+        required_fields: str | None = None,
+        required_position: str = 'any',
 ) -> tuple[list[str], list[str], dict[str, Any] | None]:
     if dialect not in DIALECT_CONFIG:
         return (
@@ -149,6 +200,10 @@ def validate_schema(
     # For fix mode, create a copy of data to modify
     if mode == 'fix':
         fixed_data = json.loads(json.dumps(data))  # Deep copy
+
+    # Validate custom required field names first (at schema level)
+    custom_errors = validate_custom_field_names(data, required_fields, required_position, file_path)
+    errors.extend(custom_errors)
 
     for i, field in enumerate(data):
         if not isinstance(field, dict):
@@ -231,6 +286,22 @@ def main():
         ),
     )
     parser.add_argument(
+        '--required-fields',
+        help=(
+            'Comma-separated list of required field names (e.g., "insert_date,update_date"). '
+            'Validates that fields with these names exist in the schema in the specified order.'
+        ),
+    )
+    parser.add_argument(
+        '--required-position',
+        default='any',
+        choices=['beginning', 'end', 'any'],
+        help=(
+            'Position requirement for required fields: beginning (first N keys), '
+            'end (last N keys), or any (anywhere but in order) (default: any)'
+        ),
+    )
+    parser.add_argument(
         'files',
         nargs='*',
         help=(
@@ -259,6 +330,8 @@ def main():
 
         validation_errors, fixable_errors, fixed_data = validate_schema(
             file_path, args.dialect, args.case, args.mode,
+            getattr(args, 'required_fields', None),
+            getattr(args, 'required_position', 'any'),
         )
         if args.mode == 'fix':
             # In fix mode, only show non-fixable errors
