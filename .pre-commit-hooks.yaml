@@ -46,9 +46,7 @@
       # Download config files to cache directory
       curl -s https://raw.githubusercontent.com/Hernan-V/pre-commit-check-hooks/main/.sqlfluff_bigquery > "$CACHE_DIR/.sqlfluff_bigquery"
       curl -s https://raw.githubusercontent.com/Hernan-V/pre-commit-check-hooks/main/.isort.cfg > "$CACHE_DIR/.isort.cfg"
-      
-      # Create symlinks in root directory for tools to find the configs
-      ln -sf "$CACHE_DIR/.sqlfluff_bigquery" .sqlfluff_bigquery
-      ln -sf "$CACHE_DIR/.isort.cfg" .isort.cfg
-      
+
       echo "Config files cached in $CACHE_DIR and symlinked to root directory"
+
+      export PRE_COMMIT_CACHE_DIR=".git/.pre-commit-config-cache"
