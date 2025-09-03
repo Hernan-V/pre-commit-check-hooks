@@ -22,10 +22,10 @@ def apply_naming_fix(name: str, case_style: str) -> str:
 
 
 def apply_field_fixes(
-        field: dict[str, Any], case_style: str,
+        field: dict[str, Any], case_style: str | None,
 ) -> dict[str, Any]:
     """Apply naming fixes to a field and its nested fields recursively."""
-    if 'name' in field:
+    if 'name' in field and case_style:
         fixed_name = apply_naming_fix(field['name'], case_style)
         if fixed_name != field['name']:
             field = field.copy()  # Don't modify original
@@ -34,7 +34,7 @@ def apply_field_fixes(
     # Handle nested fields for RECORD types
     if (
         field.get('type') == 'RECORD' and 'fields' in field and
-        isinstance(field['fields'], list)
+        isinstance(field['fields'], list) and case_style
     ):
         field = field.copy()  # Don't modify original
         field['fields'] = [
@@ -100,7 +100,7 @@ def validate_custom_field_names(
 def validate_field(
         field: dict[str, Any],
         dialect_config: dict[str, Any],
-        case_style: str,
+        case_style: str | None,
         path: str = '',
         mode: str = 'lint',
 ) -> tuple[list[str], list[str]]:
@@ -123,7 +123,7 @@ def validate_field(
                 f"Field {field_path}: Attribute '{attr}' cannot be empty",
             )
 
-    if 'name' in field:
+    if 'name' in field and case_style:
         naming_error = validate_naming_convention(field['name'], case_style)
         if naming_error:
             if mode == 'fix':
@@ -163,7 +163,7 @@ def validate_field(
 def validate_schema(
         file_path: str,
         dialect: str,
-        case_style: str,
+        case_style: str | None,
         mode: str = 'lint',
         required_fields: str | None = None,
         required_position: str = 'any',
@@ -201,9 +201,10 @@ def validate_schema(
     if mode == 'fix':
         fixed_data = json.loads(json.dumps(data))  # Deep copy
 
-    # Validate custom required field names first (at schema level)
-    custom_errors = validate_custom_field_names(data, required_fields, required_position, file_path)
-    errors.extend(custom_errors)
+    # Validate custom required field names first (at schema level) - only if specified
+    if required_fields:
+        custom_errors = validate_custom_field_names(data, required_fields, required_position, file_path)
+        errors.extend(custom_errors)
 
     for i, field in enumerate(data):
         if not isinstance(field, dict):
@@ -269,11 +270,11 @@ def main():
     )
     parser.add_argument(
         '--case',
-        default='snake',
         choices=get_supported_case_styles(),
         help=(
             'Naming convention for field names. Supported: snake, camel, '
-            'pascal, upper, kebab, train, flat, cobol, title (default: snake)'
+            'pascal, upper, kebab, train, flat, cobol, title. If not specified, '
+            'naming convention validation is skipped.'
         ),
     )
     parser.add_argument(
@@ -312,8 +313,17 @@ def main():
 
     args = parser.parse_args()
 
+    # If neither case validation nor required fields validation is requested, do nothing
+    if not args.case and not args.required_fields:
+        print("No validation requested (neither --case nor --required-fields specified). Skipping validation.")
+        return 0
+
     if args.files:
         candidate_files = args.files
+        # Apply path regex filter even when files are provided
+        if args.path_regex:
+            import re
+            candidate_files = [f for f in candidate_files if re.search(args.path_regex, f)]
     else:
         candidate_files = discover_files(args.file_type, args.path_regex)
 
