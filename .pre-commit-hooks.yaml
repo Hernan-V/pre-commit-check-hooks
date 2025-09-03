@@ -30,3 +30,16 @@
   types: [json]
   require_serial: true
   additional_dependencies: [case-converter]
+
+- id: setup-configs
+  name: Download shared config files
+  description: Downloads shared configuration files from remote repository to local workspace
+  entry: bash
+  language: system
+  pass_filenames: false
+  args:
+    - -c
+    - |
+      curl -s https://raw.githubusercontent.com/Hernan-V/pre-commit-check-hooks/main/.sqlfluff_bigquery > .sqlfluff_bigquery
+      curl -s https://raw.githubusercontent.com/Hernan-V/pre-commit-check-hooks/main/.isort.cfg > .isort.cfg
+      echo "Archivos de configuración descargados: .sqlfluff_bigquery, .isort.cfg"
