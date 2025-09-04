@@ -56,6 +56,13 @@ Downloads shared configuration files from remote repositories to a local cache d
 - **Configuration**: Uses environment variables with sensible defaults
 - **Benefits**: Keeps project workspace clean by storing files in cache directory
 
+### `test-config`
+Creates a `.envrc` file with environment variable exports for development use.
+- **Purpose**: Generate a development environment file with the current hook configuration
+- **Action**: Creates `.envrc` with exported environment variables for direnv or manual sourcing
+- **Usage**: Useful for local development and testing outside of pre-commit execution
+- **Output**: Generated `.envrc` file (gitignored) that can be used with direnv or sourced manually
+
 ## Installation
 
 ### Option 1: Use in your .pre-commit-config.yaml
@@ -68,6 +75,7 @@ repos:
     rev: v1.0.11  # Use the latest version
     hooks:
       - id: setup-configs  # Download shared config files first
+      - id: test-config    # Optional: create .envrc for development
       - id: check-trailing-whitespace
       - id: check-end-of-file
       - id: check-mixed-line-ending

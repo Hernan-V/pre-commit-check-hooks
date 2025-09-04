@@ -69,3 +69,9 @@ Thumbs.db
 
 # Pre-commit
 .pre-commit-cache/
+
+# Generated environment files
+.envrc
+
+# Test files
+test*.txt
