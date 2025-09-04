@@ -40,13 +40,41 @@
   args:
     - -c
     - |
-      export PRE_COMMIT_CACHE_DIR=".git/.pre-commit-config-cache"
-      mkdir -p "$PRE_COMMIT_CACHE_DIR"
+      # Load environment variables from .envrc if it exists
+      if [ -f ".envrc" ]; then
+        source .envrc
+      fi
+      
+      # Override cache directory if it exists (clean everything inside)
+      if [ -d "$PRE_COMMIT_HOOK_CACHE_DIRECTORY" ]; then
+        echo "Cleaning existing cache directory: $PRE_COMMIT_HOOK_CACHE_DIRECTORY"
+        rm -rf "$PRE_COMMIT_HOOK_CACHE_DIRECTORY"/*
+      fi
+      
+      # Create cache directory
+      mkdir -p "$PRE_COMMIT_HOOK_CACHE_DIRECTORY"
       
       # Download config files to cache directory
-      curl -s https://raw.githubusercontent.com/Hernan-V/pre-commit-check-hooks/main/.sqlfluff_bigquery > "$PRE_COMMIT_CACHE_DIR/.sqlfluff_bigquery"
-      curl -s https://raw.githubusercontent.com/Hernan-V/pre-commit-check-hooks/main/.isort.cfg > "$PRE_COMMIT_CACHE_DIR/.isort.cfg"
+      curl -s "$PRE_COMMIT_HOOK_DOWNLOAD_BASE_URL/.sqlfluff_bigquery" > "$PRE_COMMIT_HOOK_CACHE_DIRECTORY/.sqlfluff_bigquery"
+      curl -s "$PRE_COMMIT_HOOK_DOWNLOAD_BASE_URL/.isort.cfg" > "$PRE_COMMIT_HOOK_CACHE_DIRECTORY/.isort.cfg"
+      
+      echo "Config files cached in $PRE_COMMIT_HOOK_CACHE_DIRECTORY"
 
-      echo "Config files cached in $PRE_COMMIT_CACHE_DIR and symlinked to root directory"
-      touch .test.txt
-      echo $PRE_COMMIT_CACHE_DIR > .test.txt
+- id: test-config
+  name: Test environment variables
+  description: Creates test.txt file with environment variable content to verify scope
+  entry: bash
+  language: system
+  pass_filenames: false
+  args:
+    - -c
+    - |
+      # Load environment variables from .envrc if it exists
+      if [ -f ".envrc" ]; then
+        source .envrc
+      fi
+      
+      # Create test.txt file with environment variable content
+      echo "PRE_COMMIT_HOOK_CACHE_DIRECTORY=$PRE_COMMIT_HOOK_CACHE_DIRECTORY" > test.txt
+      echo "PRE_COMMIT_HOOK_DOWNLOAD_BASE_URL=$PRE_COMMIT_HOOK_DOWNLOAD_BASE_URL" >> test.txt
+      echo "Test file created with environment variables at $(date)"

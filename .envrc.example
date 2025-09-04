@@ -1,0 +1,11 @@
+# Pre-commit hooks local configuration example
+# Copy this file to .envrc.local to override the default settings
+# This file is gitignored and won't be committed
+
+# Example: Use a custom cache directory
+# export PRE_COMMIT_HOOK_CACHE_DIRECTORY="/tmp/my-custom-cache"
+
+# Example: Use your organization's configuration repository
+# export PRE_COMMIT_HOOK_DOWNLOAD_BASE_URL="https://raw.githubusercontent.com/your-org/custom-configs/main"
+
+echo "Local pre-commit hooks overrides loaded"
