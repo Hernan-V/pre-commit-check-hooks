@@ -34,7 +34,7 @@
 - id: setup-configs
   name: Download shared config files
   description: Downloads shared configuration files from remote repository to cache directory
-  entry: bash
+  entry: sh
   language: system
   pass_filenames: false
   args:
@@ -63,13 +63,18 @@
 - id: test-config
   name: Test environment variables
   description: Creates test.txt file with environment variable content to verify scope
-  entry: bash
+  entry: sh
   language: system
   pass_filenames: false
   args:
     - -c
     - |
+      # Set environment variables using the wrapper pattern recommended by pre-commit maintainers
+      export PRE_COMMIT_HOOK_CACHE_DIRECTORY="${PRE_COMMIT_HOOK_CACHE_DIRECTORY:-.git/.pre-commit-config-cache}"
+      export PRE_COMMIT_HOOK_DOWNLOAD_BASE_URL="${PRE_COMMIT_HOOK_DOWNLOAD_BASE_URL:-https://raw.githubusercontent.com/Hernan-V/pre-commit-check-hooks/main}"
+      
       # Create test.txt file with environment variable content
       echo "PRE_COMMIT_HOOK_CACHE_DIRECTORY=$PRE_COMMIT_HOOK_CACHE_DIRECTORY" > test.txt
       echo "PRE_COMMIT_HOOK_DOWNLOAD_BASE_URL=$PRE_COMMIT_HOOK_DOWNLOAD_BASE_URL" >> test.txt
+      echo "Hook approach: Per-hook wrapper pattern" >> test.txt
       echo "Test file created with environment variables at $(date)"
