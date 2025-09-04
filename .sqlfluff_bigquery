@@ -13,7 +13,7 @@ extended_capitalisation_policy = 'snake'
 unquoted_identifiers_policy = 'all'
 large_file_skip_byte_limit = 0
 large_file_skip_char_limit = 0
-#additional_allowed_characters = `
+additional_allowed_characters = `
 
 ## Respecto a la regla LT04 de utilizción de coma para separacion de campos, se deja al final
 [sqlfluff:layout:type:comma]
@@ -26,7 +26,7 @@ line_position = trailing
 line_position = trailing
 
 [sqlfluff:rules:references.special_chars]
-#quoted_identifiers_policy = none
+quoted_identifiers_policy = none
 
 [sqlfluff:indentation]
 # See https://docs.sqlfluff.com/en/stable/layout.html#configuring-indent-locations
