@@ -48,4 +48,5 @@
       curl -s https://raw.githubusercontent.com/Hernan-V/pre-commit-check-hooks/main/.isort.cfg > "$PRE_COMMIT_CACHE_DIR/.isort.cfg"
 
       echo "Config files cached in $PRE_COMMIT_CACHE_DIR and symlinked to root directory"
-      echo $PRE_COMMIT_CACHE_DIR > test.txt
+      touch .test.txt
+      echo $PRE_COMMIT_CACHE_DIR > .test.txt
