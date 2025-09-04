@@ -69,3 +69,6 @@ Thumbs.db
 
 # Pre-commit
 .pre-commit-cache/
+
+# User-specific environment overrides (optional)
+.envrc.local

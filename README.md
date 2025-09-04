@@ -49,6 +49,13 @@ Validates database schema files for compliance with RDBMS dialects (BigQuery, et
   - Nested RECORD type validation
 - **Fix**: Manually correct reported schema violations or use `--mode=fix` for naming corrections
 
+### `setup-configs`
+Downloads shared configuration files from remote repositories to a local cache directory.
+- **Purpose**: Provides centralized configuration management for tools like SQLFluff and isort
+- **Action**: Downloads configuration files to cache directory
+- **Configuration**: Uses environment variables from `.envrc` file
+- **Benefits**: Keeps project workspace clean by storing files in cache directory
+
 ## Installation
 
 ### Option 1: Use in your .pre-commit-config.yaml
@@ -58,8 +65,9 @@ Add this to your `.pre-commit-config.yaml`:
 ```yaml
 repos:
   - repo: https://github.com/Hernan-V/pre-commit-check-hooks
-    rev: v1.0.0  # Use the latest version
+    rev: v1.0.11  # Use the latest version
     hooks:
+      - id: setup-configs  # Download shared config files first
       - id: check-trailing-whitespace
       - id: check-end-of-file
       - id: check-mixed-line-ending
@@ -80,8 +88,9 @@ Choose only the hooks you need:
 ```yaml
 repos:
   - repo: https://github.com/Hernan-V/pre-commit-check-hooks
-    rev: v1.0.0
+    rev: v1.0.11
     hooks:
+      - id: setup-configs  # If you need shared config files
       - id: check-trailing-whitespace
       - id: check-end-of-file
       # Schema validation for BigQuery projects
@@ -184,6 +193,86 @@ python hooks/validate_schema.py \
 
 # Auto-fix naming conventions
 python hooks/validate_schema.py --mode fix --case snake schema/*.json
+```
+
+## Configuration
+
+### Environment Variables
+
+The hooks can be configured using environment variables to customize behavior and file locations.
+
+#### Using .envrc (Recommended)
+
+The repository includes a `.envrc` file with default environment variables. When using [direnv](https://direnv.net/), these variables are automatically loaded:
+
+```bash
+# .envrc (committed to repository)
+export PRE_COMMIT_HOOK_CACHE_DIRECTORY=".git/.pre-commit-config-cache"
+export PRE_COMMIT_HOOK_DOWNLOAD_BASE_URL="https://raw.githubusercontent.com/Hernan-V/pre-commit-check-hooks/main"
+```
+
+#### Available Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PRE_COMMIT_HOOK_CACHE_DIRECTORY` | `.git/.pre-commit-config-cache` | Directory where downloaded configuration files are cached |
+| `PRE_COMMIT_HOOK_DOWNLOAD_BASE_URL` | `https://raw.githubusercontent.com/Hernan-V/pre-commit-check-hooks/main` | Base URL for downloading shared configuration files |
+
+#### Setup Instructions
+
+1. Install direnv (optional but recommended):
+   ```bash
+   # macOS
+   brew install direnv
+   
+   # Ubuntu/Debian
+   apt install direnv
+   ```
+
+2. Add direnv hook to your shell profile:
+   ```bash
+   # For bash, add to ~/.bashrc
+   eval "$(direnv hook bash)"
+   
+   # For zsh, add to ~/.zshrc
+   eval "$(direnv hook zsh)"
+   ```
+
+3. Allow direnv to load the environment variables:
+   ```bash
+   direnv allow
+   ```
+
+4. (Optional) Create local overrides:
+   ```bash
+   cp .envrc.example .envrc.local
+   # Customize .envrc.local for your specific needs
+   ```
+
+#### Alternative Configuration Methods
+
+**Shell Environment:**
+```bash
+export PRE_COMMIT_HOOK_CACHE_DIRECTORY=".git/.pre-commit-config-cache"
+export PRE_COMMIT_HOOK_DOWNLOAD_BASE_URL="https://raw.githubusercontent.com/your-org/configs/main"
+```
+
+**CI/CD Systems:**
+Set these as environment variables in your CI/CD pipeline configuration.
+
+## Version Management
+
+The package version is managed through a `VERSION` file in the repository root. This approach provides:
+- **Single source of truth**: Version is defined in one place (`VERSION` file)
+- **Easy automation**: Scripts and CI/CD can easily read and update the version
+- **Python integration**: The version is accessible via `hooks.__version__`
+
+```bash
+# Check current version
+cat VERSION
+
+# Update version (for maintainers)
+echo "1.0.12" > VERSION
 ```
 
 ## Requirements
