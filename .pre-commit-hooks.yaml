@@ -45,12 +45,6 @@
         source .envrc
       fi
       
-      # Override cache directory if it exists (clean everything inside)
-      if [ -d "$PRE_COMMIT_HOOK_CACHE_DIRECTORY" ]; then
-        echo "Cleaning existing cache directory: $PRE_COMMIT_HOOK_CACHE_DIRECTORY"
-        rm -rf "$PRE_COMMIT_HOOK_CACHE_DIRECTORY"/*
-      fi
-      
       # Create cache directory
       mkdir -p "$PRE_COMMIT_HOOK_CACHE_DIRECTORY"
       
@@ -69,11 +63,6 @@
   args:
     - -c
     - |
-      # Load environment variables from .envrc if it exists
-      if [ -f ".envrc" ]; then
-        source .envrc
-      fi
-      
       # Create test.txt file with environment variable content
       echo "PRE_COMMIT_HOOK_CACHE_DIRECTORY=$PRE_COMMIT_HOOK_CACHE_DIRECTORY" > test.txt
       echo "PRE_COMMIT_HOOK_DOWNLOAD_BASE_URL=$PRE_COMMIT_HOOK_DOWNLOAD_BASE_URL" >> test.txt
