@@ -52,8 +52,8 @@ Validates database schema files for compliance with RDBMS dialects (BigQuery, et
 ### `setup-configs`
 Downloads shared configuration files from remote repositories to a local cache directory.
 - **Purpose**: Provides centralized configuration management for tools like SQLFluff and isort
-- **Action**: Downloads configuration files to cache directory
-- **Configuration**: Uses environment variables from `.envrc` file
+- **Action**: Downloads configuration files to cache directory using configurable environment variables
+- **Configuration**: Uses environment variables with sensible defaults
 - **Benefits**: Keeps project workspace clean by storing files in cache directory
 
 ## Installation
@@ -216,6 +216,35 @@ export PRE_COMMIT_HOOK_DOWNLOAD_BASE_URL="https://raw.githubusercontent.com/your
 
 **CI/CD Systems:**
 Set these as environment variables in your CI/CD pipeline configuration.
+
+### Environment Variables in Hook Development
+
+Pre-commit runs each hook in isolation, so environment variables don't persist between hooks. Following the pre-commit maintainers' recommendations, use **per-hook wrappers** to set the same environment variables for each hook that needs them.
+
+**Recommended pattern (per-hook wrapper):**
+```yaml
+# In your .pre-commit-config.yaml
+- repo: https://github.com/Hernan-V/pre-commit-check-hooks
+  rev: v1.0.12
+  hooks:
+    - id: setup-configs
+    - id: my-custom-hook
+      entry: sh -c 'export PRE_COMMIT_HOOK_CACHE_DIRECTORY="${PRE_COMMIT_HOOK_CACHE_DIRECTORY:-.git/.pre-commit-config-cache}"; exec my-original-command "$@"'
+```
+
+**For custom hook development:**
+```bash
+# Each hook that needs the environment should set its own variables
+export PRE_COMMIT_HOOK_CACHE_DIRECTORY="${PRE_COMMIT_HOOK_CACHE_DIRECTORY:-.git/.pre-commit-config-cache}"
+export PRE_COMMIT_HOOK_DOWNLOAD_BASE_URL="${PRE_COMMIT_HOOK_DOWNLOAD_BASE_URL:-https://raw.githubusercontent.com/Hernan-V/pre-commit-check-hooks/main}"
+
+# Then use the environment variables
+mkdir -p "$PRE_COMMIT_HOOK_CACHE_DIRECTORY"
+curl -s "$PRE_COMMIT_HOOK_DOWNLOAD_BASE_URL/my-config.txt" > "$PRE_COMMIT_HOOK_CACHE_DIRECTORY/my-config.txt"
+```
+
+**Cross-platform compatibility:**
+Use `sh -c` instead of `bash -c` for better compatibility across different systems.
 
 ## Version Management
 
