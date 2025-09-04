@@ -197,63 +197,20 @@ python hooks/validate_schema.py --mode fix --case snake schema/*.json
 
 ## Configuration
 
-### Environment Variables
+### Environment Variables (Optional)
 
-The hooks can be configured using environment variables to customize behavior and file locations.
-
-#### Using .envrc (Recommended)
-
-The repository includes a `.envrc` file with default environment variables. When using [direnv](https://direnv.net/), these variables are automatically loaded:
-
-```bash
-# .envrc (committed to repository)
-export PRE_COMMIT_HOOK_CACHE_DIRECTORY=".git/.pre-commit-config-cache"
-export PRE_COMMIT_HOOK_DOWNLOAD_BASE_URL="https://raw.githubusercontent.com/Hernan-V/pre-commit-check-hooks/main"
-```
-
-#### Available Environment Variables
+The hooks use default configuration values and work out-of-the-box. You can optionally customize behavior by setting environment variables:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `PRE_COMMIT_HOOK_CACHE_DIRECTORY` | `.git/.pre-commit-config-cache` | Directory where downloaded configuration files are cached |
 | `PRE_COMMIT_HOOK_DOWNLOAD_BASE_URL` | `https://raw.githubusercontent.com/Hernan-V/pre-commit-check-hooks/main` | Base URL for downloading shared configuration files |
 
-#### Setup Instructions
-
-1. Install direnv (optional but recommended):
-   ```bash
-   # macOS
-   brew install direnv
-   
-   # Ubuntu/Debian
-   apt install direnv
-   ```
-
-2. Add direnv hook to your shell profile:
-   ```bash
-   # For bash, add to ~/.bashrc
-   eval "$(direnv hook bash)"
-   
-   # For zsh, add to ~/.zshrc
-   eval "$(direnv hook zsh)"
-   ```
-
-3. Allow direnv to load the environment variables:
-   ```bash
-   direnv allow
-   ```
-
-4. (Optional) Create local overrides:
-   ```bash
-   cp .envrc.example .envrc.local
-   # Customize .envrc.local for your specific needs
-   ```
-
-#### Alternative Configuration Methods
+#### Customization Examples
 
 **Shell Environment:**
 ```bash
-export PRE_COMMIT_HOOK_CACHE_DIRECTORY=".git/.pre-commit-config-cache"
+export PRE_COMMIT_HOOK_CACHE_DIRECTORY=".git/.my-custom-cache"
 export PRE_COMMIT_HOOK_DOWNLOAD_BASE_URL="https://raw.githubusercontent.com/your-org/configs/main"
 ```
 
