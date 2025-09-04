@@ -40,13 +40,21 @@
   args:
     - -c
     - |
-      # Load environment variables from .envrc if it exists
-      source .envrc
+      # Set default environment variables
+      export PRE_COMMIT_HOOK_CACHE_DIRECTORY="${PRE_COMMIT_HOOK_CACHE_DIRECTORY:-.git/.pre-commit-config-cache}"
+      export PRE_COMMIT_HOOK_DOWNLOAD_BASE_URL="${PRE_COMMIT_HOOK_DOWNLOAD_BASE_URL:-https://raw.githubusercontent.com/Hernan-V/pre-commit-check-hooks/main}"
+      
+      # Override cache directory if it exists (clean everything inside)
+      if [ -d "$PRE_COMMIT_HOOK_CACHE_DIRECTORY" ]; then
+        echo "Cleaning existing cache directory: $PRE_COMMIT_HOOK_CACHE_DIRECTORY"
+        rm -rf "$PRE_COMMIT_HOOK_CACHE_DIRECTORY"/*
+      fi
       
       # Create cache directory
       mkdir -p "$PRE_COMMIT_HOOK_CACHE_DIRECTORY"
       
       # Download config files to cache directory
+      echo "Downloading config files to $PRE_COMMIT_HOOK_CACHE_DIRECTORY"
       curl -s "$PRE_COMMIT_HOOK_DOWNLOAD_BASE_URL/.sqlfluff_bigquery" > "$PRE_COMMIT_HOOK_CACHE_DIRECTORY/.sqlfluff_bigquery"
       curl -s "$PRE_COMMIT_HOOK_DOWNLOAD_BASE_URL/.isort.cfg" > "$PRE_COMMIT_HOOK_CACHE_DIRECTORY/.isort.cfg"
       
