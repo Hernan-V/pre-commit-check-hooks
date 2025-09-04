@@ -41,9 +41,7 @@
     - -c
     - |
       # Load environment variables from .envrc if it exists
-      if [ -f ".envrc" ]; then
-        source .envrc
-      fi
+      source .envrc
       
       # Create cache directory
       mkdir -p "$PRE_COMMIT_HOOK_CACHE_DIRECTORY"
