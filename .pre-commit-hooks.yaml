@@ -97,4 +97,3 @@
   types: [text]
   require_serial: true
   verbose: true
-  additional_dependencies: [os, sys]
