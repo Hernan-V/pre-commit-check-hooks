@@ -92,8 +92,9 @@
 - id: test-pwd-hook
   name: Probar acceso a PWD en hooks
   description: Hook de prueba para verificar si se puede acceder al PWD de los archivos
-  entry: test-pwd-hook.py
+  entry: test-pwd-hook
   language: python
   types: [text]
   require_serial: true
   verbose: true
+  additional_dependencies: [os, sys]
