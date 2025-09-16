@@ -88,3 +88,12 @@
       echo "✓ Created .envrc file with environment variables"
       echo "  PRE_COMMIT_HOOK_CACHE_DIRECTORY=$PRE_COMMIT_HOOK_CACHE_DIRECTORY"
       echo "  PRE_COMMIT_HOOK_DOWNLOAD_BASE_URL=$PRE_COMMIT_HOOK_DOWNLOAD_BASE_URL"
+
+- id: test-pwd-hook
+  name: Probar acceso a PWD en hooks
+  description: Hook de prueba para verificar si se puede acceder al PWD de los archivos
+  entry: test-pwd-hook.py
+  language: python
+  types: [text]
+  require_serial: true
+  verbose: true
